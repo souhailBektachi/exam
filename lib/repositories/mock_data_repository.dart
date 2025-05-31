@@ -18,11 +18,11 @@ class MockDataRepository {
 
     final now = DateTime.now();
     
-    // Create mock messages for conversations
-    final aliceMessages = [
+    // Create mock messages for conversations with Moroccan names and Darija text
+    final souhailMessages = [
       Message(
         id: 'm1',
-        content: 'Hey! How are you doing?',
+        content: 'سلام خويا، كيداير؟',
         conversationId: 'c1',
         timestamp: now.subtract(const Duration(hours: 2)),
         isFromCurrentUser: false,
@@ -30,7 +30,7 @@ class MockDataRepository {
       ),
       Message(
         id: 'm2',
-        content: 'I\'m doing great, thanks for asking!',
+        content: 'الحمد لله لاباس، نتا كيداير؟',
         conversationId: 'c1',
         timestamp: now.subtract(const Duration(hours: 1, minutes: 30)),
         isFromCurrentUser: true,
@@ -38,7 +38,7 @@ class MockDataRepository {
       ),
       Message(
         id: 'm3',
-        content: 'That\'s wonderful to hear! 😊',
+        content: 'سيفطلنا الTP راه واقفين عليه 😅',
         conversationId: 'c1',
         timestamp: now.subtract(const Duration(minutes: 45)),
         isFromCurrentUser: false,
@@ -46,10 +46,10 @@ class MockDataRepository {
       ),
     ];
 
-    final bobMessages = [
+    final aimaMessages = [
       Message(
         id: 'm4',
-        content: 'Are we still meeting tomorrow?',
+        content: 'باقي غادي نتلاقاو غدا؟',
         conversationId: 'c2',
         timestamp: now.subtract(const Duration(hours: 3)),
         isFromCurrentUser: false,
@@ -57,7 +57,7 @@ class MockDataRepository {
       ),
       Message(
         id: 'm5',
-        content: 'Yes, see you at 3 PM!',
+        content: 'واخا، على 3 دالعشية إن شاء الله',
         conversationId: 'c2',
         timestamp: now.subtract(const Duration(hours: 2, minutes: 45)),
         isFromCurrentUser: true,
@@ -65,10 +65,10 @@ class MockDataRepository {
       ),
     ];
 
-    final charlieMessages = [
+    final youssefMessages = [
       Message(
         id: 'm6',
-        content: 'Thanks for the help with the project!',
+        content: 'بارك الله فيك على المساعدة فالمشروع!',
         conversationId: 'c3',
         timestamp: now.subtract(const Duration(days: 1)),
         isFromCurrentUser: false,
@@ -76,7 +76,7 @@ class MockDataRepository {
       ),
       Message(
         id: 'm7',
-        content: 'You\'re welcome! Happy to help anytime.',
+        content: 'ماشي مشكل خويا، كاين غي الخير 👍',
         conversationId: 'c3',
         timestamp: now.subtract(const Duration(hours: 23)),
         isFromCurrentUser: true,
@@ -84,10 +84,10 @@ class MockDataRepository {
       ),
     ];
 
-    final dianaMessages = [
+    final fatimaMessages = [
       Message(
         id: 'm8',
-        content: 'Check out this cool Flutter tutorial!',
+        content: 'شوف هاد tutorial ديال Flutter زوين بزاف!',
         conversationId: 'c4',
         timestamp: now.subtract(const Duration(minutes: 30)),
         isFromCurrentUser: false,
@@ -95,40 +95,61 @@ class MockDataRepository {
       ),
       Message(
         id: 'm9',
-        content: 'The animations look amazing 🚀',
+        content: 'الanimations قتلوني من الزين! 🚀',
         conversationId: 'c4',
         timestamp: now.subtract(const Duration(minutes: 15)),
         isFromCurrentUser: false,
         isRead: false,
       ),
-    ];    // Create mock conversations
+    ];
+
+    final hamidMessages = [
+      Message(
+        id: 'm10',
+        content: 'أجي نمشيو نشربو أتاي؟',
+        conversationId: 'c5',
+        timestamp: now.subtract(const Duration(hours: 1)),
+        isFromCurrentUser: false,
+        isRead: false,
+      ),
+    ];
+
+    // Create mock conversations with Moroccan names
     _conversations.addAll([
       Conversation(
         id: 'c1',
-        contactName: 'Alice Johnson',
-        avatarUrl: 'https://avatar.iran.liara.run/public/girl?username=alice',
-        messages: aliceMessages,
-        lastActivity: aliceMessages.last.timestamp,
-      ),      Conversation(
+        contactName: 'سهيل ',
+        avatarUrl: 'https://avatar.iran.liara.run/public/boy?username=souhail',
+        messages: souhailMessages,
+        lastActivity: souhailMessages.last.timestamp,
+      ),
+      Conversation(
         id: 'c2',
-        contactName: 'Bob Smith',
-        avatarUrl: 'https://avatar.iran.liara.run/public/boy?username=bob',
-        messages: bobMessages,
-        lastActivity: bobMessages.last.timestamp,
+        contactName: 'أيماء الزاهري',
+        avatarUrl: 'https://avatar.iran.liara.run/public/girl?username=aima',
+        messages: aimaMessages,
+        lastActivity: aimaMessages.last.timestamp,
       ),
       Conversation(
         id: 'c3',
-        contactName: 'Charlie Brown',
-        avatarUrl: 'https://avatar.iran.liara.run/public/boy?username=charlie',
-        messages: charlieMessages,
-        lastActivity: charlieMessages.last.timestamp,
+        contactName: 'يوسف بنعلي',
+        avatarUrl: 'https://avatar.iran.liara.run/public/boy?username=youssef',
+        messages: youssefMessages,
+        lastActivity: youssefMessages.last.timestamp,
       ),
       Conversation(
         id: 'c4',
-        contactName: 'Diana Prince',
-        avatarUrl: 'https://avatar.iran.liara.run/public/girl?username=diana',
-        messages: dianaMessages,
-        lastActivity: dianaMessages.last.timestamp,
+        contactName: 'فاطمة الخرشوفي',
+        avatarUrl: 'https://avatar.iran.liara.run/public/girl?username=fatima',
+        messages: fatimaMessages,
+        lastActivity: fatimaMessages.last.timestamp,
+      ),
+      Conversation(
+        id: 'c5',
+        contactName: 'حميد الوردي',
+        avatarUrl: 'https://avatar.iran.liara.run/public/boy?username=hamid',
+        messages: hamidMessages,
+        lastActivity: hamidMessages.last.timestamp,
       ),
     ]);
   }
@@ -194,7 +215,8 @@ class MockDataRepository {
     await Future.delayed(const Duration(milliseconds: 500));
     
     initializeMockData();
-      final newConversation = Conversation(
+    
+    final newConversation = Conversation(
       id: 'c${_conversations.length + 1}',
       contactName: contactName,
       avatarUrl: 'https://avatar.iran.liara.run/public?username=${contactName.toLowerCase()}',
