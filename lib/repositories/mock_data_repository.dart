@@ -101,35 +101,32 @@ class MockDataRepository {
         isFromCurrentUser: false,
         isRead: false,
       ),
-    ];
-
-    // Create mock conversations
+    ];    // Create mock conversations
     _conversations.addAll([
       Conversation(
         id: 'c1',
         contactName: 'Alice Johnson',
-        avatarUrl: 'https://i.pravatar.cc/150?img=1',
+        avatarUrl: 'https://avatar.iran.liara.run/public/girl?username=alice',
         messages: aliceMessages,
         lastActivity: aliceMessages.last.timestamp,
-      ),
-      Conversation(
+      ),      Conversation(
         id: 'c2',
         contactName: 'Bob Smith',
-        avatarUrl: 'https://i.pravatar.cc/150?img=2',
+        avatarUrl: 'https://avatar.iran.liara.run/public/boy?username=bob',
         messages: bobMessages,
         lastActivity: bobMessages.last.timestamp,
       ),
       Conversation(
         id: 'c3',
         contactName: 'Charlie Brown',
-        avatarUrl: 'https://i.pravatar.cc/150?img=3',
+        avatarUrl: 'https://avatar.iran.liara.run/public/boy?username=charlie',
         messages: charlieMessages,
         lastActivity: charlieMessages.last.timestamp,
       ),
       Conversation(
         id: 'c4',
         contactName: 'Diana Prince',
-        avatarUrl: 'https://i.pravatar.cc/150?img=4',
+        avatarUrl: 'https://avatar.iran.liara.run/public/girl?username=diana',
         messages: dianaMessages,
         lastActivity: dianaMessages.last.timestamp,
       ),
@@ -197,11 +194,10 @@ class MockDataRepository {
     await Future.delayed(const Duration(milliseconds: 500));
     
     initializeMockData();
-    
-    final newConversation = Conversation(
+      final newConversation = Conversation(
       id: 'c${_conversations.length + 1}',
       contactName: contactName,
-      avatarUrl: 'https://i.pravatar.cc/150?img=${_conversations.length + 5}',
+      avatarUrl: 'https://avatar.iran.liara.run/public?username=${contactName.toLowerCase()}',
       messages: [],
       lastActivity: DateTime.now(),
     );

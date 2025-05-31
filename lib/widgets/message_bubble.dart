@@ -14,18 +14,18 @@ class MessageBubble extends StatelessWidget {
     required this.message,
     required this.contactName,
   });
-
   @override
   Widget build(BuildContext context) {
     final isFromCurrentUser = message.isFromCurrentUser;
     final theme = Theme.of(context);
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4),
+      margin: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         mainAxisAlignment: isFromCurrentUser 
             ? MainAxisAlignment.end 
             : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (isFromCurrentUser) const Spacer(flex: 1),
           
@@ -36,23 +36,41 @@ class MessageBubble extends StatelessWidget {
             ),
             padding: const EdgeInsets.symmetric(
               horizontal: 16,
-              vertical: 10,
+              vertical: 12,
             ),
             decoration: BoxDecoration(
+              gradient: isFromCurrentUser
+                  ? LinearGradient(
+                      colors: [
+                        theme.colorScheme.primary,
+                        theme.colorScheme.primary.withBlue(255),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                  : null,
               color: isFromCurrentUser
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.surfaceVariant,
+                  ? null
+                  : theme.colorScheme.surface,
               borderRadius: BorderRadius.only(
                 topLeft: const Radius.circular(20),
                 topRight: const Radius.circular(20),
-                bottomLeft: Radius.circular(isFromCurrentUser ? 20 : 4),
-                bottomRight: Radius.circular(isFromCurrentUser ? 4 : 20),
+                bottomLeft: Radius.circular(isFromCurrentUser ? 20 : 6),
+                bottomRight: Radius.circular(isFromCurrentUser ? 6 : 20),
               ),
+              border: !isFromCurrentUser
+                  ? Border.all(
+                      color: theme.colorScheme.outline.withOpacity(0.15),
+                      width: 1,
+                    )
+                  : null,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 4,
-                  offset: const Offset(0, 1),
+                  color: isFromCurrentUser 
+                      ? theme.colorScheme.primary.withOpacity(0.2)
+                      : Colors.black.withOpacity(0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
@@ -64,13 +82,15 @@ class MessageBubble extends StatelessWidget {
                   message.content,
                   style: TextStyle(
                     fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    height: 1.3,
                     color: isFromCurrentUser
-                        ? theme.colorScheme.onPrimary
+                        ? Colors.white
                         : theme.colorScheme.onSurface,
                   ),
                 ),
                 
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 
                 // Timestamp and read status
                 Row(
@@ -79,22 +99,23 @@ class MessageBubble extends StatelessWidget {
                     Text(
                       _formatMessageTime(message.timestamp),
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
                         color: isFromCurrentUser
-                            ? theme.colorScheme.onPrimary.withOpacity(0.8)
+                            ? Colors.white.withOpacity(0.8)
                             : theme.colorScheme.onSurface.withOpacity(0.6),
                       ),
                     ),
                     
                     // Read status for sent messages
                     if (isFromCurrentUser) ...[
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 6),
                       Icon(
-                        message.isRead ? Icons.done_all : Icons.done,
-                        size: 14,
+                        message.isRead ? Icons.done_all_rounded : Icons.done_rounded,
+                        size: 16,
                         color: message.isRead
-                            ? theme.colorScheme.onPrimary
-                            : theme.colorScheme.onPrimary.withOpacity(0.8),
+                            ? Colors.blue.shade200
+                            : Colors.white.withOpacity(0.8),
                       ),
                     ],
                   ],

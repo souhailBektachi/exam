@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/conversation_bloc/conversation_bloc.dart';
 import '../blocs/conversation_bloc/conversation_event.dart';
 import '../blocs/conversation_bloc/conversation_state.dart';
-import '../widgets/conversation_list_item.dart';
+import '../widgets/conversation_list_item_new.dart';
 import '../widgets/new_conversation_dialog.dart';
 import 'detailed_conversation_screen.dart';
 
@@ -19,35 +19,109 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
   @override
   void initState() {
     super.initState();
-    // Load conversations when the screen is first displayed
-    context.read<ConversationBloc>().add(const LoadConversations());
+    // Load conversations after the first frame is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ConversationBloc>().add(const LoadConversations());
+    });
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text(
-          'Conversations',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
-          ),
+        title: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF0084FF), Color(0xFF44BEC7)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.chat_bubble_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'Chats',
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 24,
+              ),
+            ),
+          ],
         ),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        elevation: 2,
         actions: [
-          // Refresh button
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              context.read<ConversationBloc>().add(const RefreshConversations());
-            },
-            tooltip: 'Refresh conversations',
+          Container(
+            margin: const EdgeInsets.only(right: 4),
+            child: IconButton(
+              icon: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.edit_outlined,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
+                ),
+              ),
+              onPressed: () => _showNewConversationDialog(context),
+              tooltip: 'New conversation',
+            ),
           ),
         ],
       ),
-      body: BlocConsumer<ConversationBloc, ConversationState>(
+      body: Column(
+        children: [
+          // Search bar
+          Container(
+            margin: const EdgeInsets.all(16),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Search conversations...',
+                  hintStyle: TextStyle(
+                    color: Colors.grey.shade500,
+                    fontSize: 16,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: Colors.grey.shade500,
+                    size: 20,
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Conversations list
+          Expanded(
+            child: BlocConsumer<ConversationBloc, ConversationState>(
         listener: (context, state) {
           // Handle state changes that require user feedback
           if (state is ConversationsError) {
@@ -74,16 +148,36 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
           } else if (state is ConversationCreated) {
             // Navigate to the new conversation
             _navigateToConversation(state.newConversation.id);
-          }
-        },
+          }        },
         builder: (context, state) {
           return _buildBody(context, state);
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showNewConversationDialog(context),
-        tooltip: 'Start new conversation',
-        child: const Icon(Icons.add),
+    ),
+  ],
+),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: FloatingActionButton(
+          onPressed: () => _showNewConversationDialog(context),
+          tooltip: 'Start new conversation',
+          elevation: 0,
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: const Icon(Icons.edit_outlined, size: 24),
+        ),
       ),
     );
   }
@@ -195,18 +289,19 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
         context.read<ConversationBloc>().add(const RefreshConversations());
         // Wait a bit for the refresh to complete
         await Future.delayed(const Duration(milliseconds: 500));
-      },
-      child: ListView.builder(
+      },      child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(8.0),
-        itemCount: conversations.length,
-        itemBuilder: (context, index) {
+        padding: const EdgeInsets.only(top: 8),
+        itemCount: conversations.length,        itemBuilder: (context, index) {
           final conversation = conversations[index];
-          return ConversationListItem(
-            conversation: conversation,
-            onTap: () => _navigateToConversation(conversation.id),
-            isLoading: state is MessageSending && 
-                       (state as MessageSending).conversationId == conversation.id,
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: ConversationListItemNew(
+              conversation: conversation,
+              onTap: () => _navigateToConversation(conversation.id),
+              isLoading: state is MessageSending && 
+                         (state as MessageSending).conversationId == conversation.id,
+            ),
           );
         },
       ),
@@ -229,9 +324,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
       return state.previousConversations!;
     }
     return [];
-  }
-
-  /// Navigates to the detailed conversation screen
+  }  /// Navigates to the detailed conversation screen
   void _navigateToConversation(String conversationId) {
     Navigator.of(context).push(
       MaterialPageRoute(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'blocs/conversation_bloc/conversation_bloc.dart';
 import 'screens/conversations_screen.dart';
@@ -9,36 +10,93 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Chat App',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
-          brightness: Brightness.light,
-        ),
-        useMaterial3: true,
-        appBarTheme: const AppBarTheme(
-          centerTitle: false,
-          elevation: 2,
-        ),
-        cardTheme: CardTheme(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+    return BlocProvider(
+      create: (context) => ConversationBloc(),
+      child: MaterialApp(
+        title: 'Messenger',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF0084FF), // Instagram/Messenger blue
+            brightness: Brightness.light,
+            surface: const Color(0xFFFAFAFA),
+            primary: const Color(0xFF0084FF),
+            secondary: const Color(0xFF44BEC7),
+            tertiary: const Color(0xFFFF6B6B),
           ),
+          useMaterial3: true,
+          fontFamily: 'Segoe UI',
+          appBarTheme: AppBarTheme(
+            centerTitle: false,
+            elevation: 0,
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black87,
+            surfaceTintColor: Colors.transparent,
+            titleTextStyle: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
+            systemOverlayStyle: const SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: Brightness.dark,
+            ),
+          ),
+          cardTheme: CardTheme(
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            color: Colors.white,
+          ),
+          floatingActionButtonTheme: const FloatingActionButtonThemeData(
+            elevation: 8,
+            backgroundColor: Color(0xFF0084FF),
+            foregroundColor: Colors.white,
+          ),
+          dividerTheme: const DividerThemeData(
+            color: Color(0xFFE0E0E0),
+            thickness: 1,
+          ),
+          scaffoldBackgroundColor: const Color(0xFFFAFAFA),
         ),
-        floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          elevation: 6,
+        darkTheme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF0084FF),
+            brightness: Brightness.dark,
+            surface: const Color(0xFF1A1A1A),
+            primary: const Color(0xFF0084FF),
+            secondary: const Color(0xFF44BEC7),
+            tertiary: const Color(0xFFFF6B6B),
+          ),
+          useMaterial3: true,
+          fontFamily: 'Segoe UI',
+          appBarTheme: AppBarTheme(
+            centerTitle: false,
+            elevation: 0,
+            backgroundColor: const Color(0xFF1A1A1A),
+            foregroundColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
+            titleTextStyle: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+          ),
+          cardTheme: CardTheme(
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            color: const Color(0xFF262626),
+          ),
+          scaffoldBackgroundColor: const Color(0xFF000000),
         ),
+        themeMode: ThemeMode.system,
+        home: const ConversationsScreen(),
+        debugShowCheckedModeBanner: false,
       ),
-      home: BlocProvider(
-        create: (context) => ConversationBloc(),
-        child: const ConversationsScreen(),
-      ),
-      debugShowCheckedModeBanner: false,
     );
   }
 }

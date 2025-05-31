@@ -35,19 +35,21 @@ class ConversationListItem extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
-            children: [
-              // Avatar with optional unread badge
+            children: [              // Avatar with optional unread badge
               Stack(
                 children: [
                   CircleAvatar(
                     radius: 28,
-                    backgroundImage: conversation.avatarUrl.isNotEmpty
-                        ? NetworkImage(conversation.avatarUrl)
-                        : null,
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    child: conversation.avatarUrl.isEmpty
+                    backgroundImage: NetworkImage(conversation.avatarUrl),
+                    backgroundColor: Colors.grey.shade300,
+                    onBackgroundImageError: (exception, stackTrace) {
+                      // Handle image loading error silently
+                    },
+                    child: conversation.avatarUrl.isEmpty 
                         ? Text(
-                            conversation.contactName.substring(0, 1).toUpperCase(),
+                            conversation.contactName.isNotEmpty 
+                                ? conversation.contactName[0].toUpperCase()
+                                : '?',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 20,
