@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:async';
 import '../blocs/conversation_bloc/conversation_bloc.dart';
 import '../blocs/conversation_bloc/conversation_event.dart';
 import '../blocs/conversation_bloc/conversation_state.dart';
@@ -16,12 +17,34 @@ class ConversationsScreen extends StatefulWidget {
 }
 
 class _ConversationsScreenState extends State<ConversationsScreen> {
+  // Search functionality
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  Timer? _debounceTimer;
+  
   @override
   void initState() {
     super.initState();
     // Load conversations after the first frame is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ConversationBloc>().add(const LoadConversations());
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _debounceTimer?.cancel();
+    super.dispose();
+  }
+
+  /// Handles search query changes with debouncing
+  void _onSearchChanged(String value) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      setState(() {
+        _searchQuery = value.toLowerCase().trim();
+      });
     });
   }
   @override
@@ -97,8 +120,9 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                     offset: const Offset(0, 2),
                   ),
                 ],
-              ),
-              child: TextField(
+              ),              child: TextField(
+                controller: _searchController,
+                onChanged: _onSearchChanged,
                 decoration: InputDecoration(
                   hintText: 'Search conversations...',
                   hintStyle: TextStyle(
@@ -110,6 +134,22 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                     color: Colors.grey.shade500,
                     size: 20,
                   ),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: Icon(
+                            Icons.clear,
+                            color: Colors.grey.shade500,
+                            size: 20,
+                          ),
+                          onPressed: () {
+                            _searchController.clear();
+                            _debounceTimer?.cancel();
+                            setState(() {
+                              _searchQuery = '';
+                            });
+                          },
+                        )
+                      : null,
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 20,
@@ -244,44 +284,89 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     }
 
     // Get conversations from the current state
-    final conversations = _getConversationsFromState(state);
-
-    if (conversations.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.chat_bubble_outline,
-              size: 64,
-              color: Colors.grey.shade400,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No conversations yet',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey.shade600,
+    final conversations = _getConversationsFromState(state);    if (conversations.isEmpty) {
+      // Check if it's empty due to search filter or actually no conversations
+      final allConversations = _getAllConversationsFromState(state);
+      
+      if (allConversations.isEmpty) {
+        // No conversations at all
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.chat_bubble_outline,
+                size: 64,
+                color: Colors.grey.shade400,
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Start a new conversation to get started!',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade500,
+              const SizedBox(height: 16),
+              Text(
+                'No conversations yet',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey.shade600,
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () => _showNewConversationDialog(context),
-              icon: const Icon(Icons.add),
-              label: const Text('Start Conversation'),
-            ),
-          ],
-        ),
-      );
+              const SizedBox(height: 8),
+              Text(
+                'Start a new conversation to get started!',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade500,
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () => _showNewConversationDialog(context),
+                icon: const Icon(Icons.add),
+                label: const Text('Start Conversation'),
+              ),
+            ],
+          ),
+        );
+      } else {
+        // No search results
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.search_off,
+                size: 64,
+                color: Colors.grey.shade400,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'No conversations found',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Try adjusting your search terms',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade500,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () {
+                  _searchController.clear();
+                  setState(() {
+                    _searchQuery = '';
+                  });
+                },
+                child: const Text('Clear search'),
+              ),
+            ],
+          ),
+        );
+      }
     }
 
     return RefreshIndicator(
@@ -307,9 +392,54 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
       ),
     );
   }
-
   /// Extracts conversations list from the current state
   List _getConversationsFromState(ConversationState state) {
+    List conversations = [];
+    
+    if (state is ConversationsLoaded) {
+      conversations = state.conversations;
+    } else if (state is MessageSending) {
+      conversations = state.conversations;
+    } else if (state is MessageSent) {
+      conversations = state.conversations;
+    } else if (state is ConversationCreating) {
+      conversations = state.conversations;
+    } else if (state is ConversationCreated) {
+      conversations = state.conversations;
+    } else if (state is ConversationsError && state.previousConversations != null) {
+      conversations = state.previousConversations!;
+    }
+    
+    // Apply search filter
+    return _filterConversations(conversations);
+  }
+  /// Filters conversations based on the search query
+  List _filterConversations(List conversations) {
+    if (_searchQuery.isEmpty) {
+      return conversations;
+    }
+    
+    return conversations.where((conversation) {
+      // Search in contact name
+      final contactName = conversation.contactName.toLowerCase();
+      if (contactName.contains(_searchQuery)) {
+        return true;
+      }
+      
+      // Search in last message content if available
+      if (conversation.lastMessage != null) {
+        final lastMessageContent = conversation.lastMessage!.content.toLowerCase();
+        if (lastMessageContent.contains(_searchQuery)) {
+          return true;
+        }
+      }
+      
+      return false;
+    }).toList();
+  }
+
+  /// Gets all conversations from state without applying search filter
+  List _getAllConversationsFromState(ConversationState state) {
     if (state is ConversationsLoaded) {
       return state.conversations;
     } else if (state is MessageSending) {
@@ -324,7 +454,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
       return state.previousConversations!;
     }
     return [];
-  }  /// Navigates to the detailed conversation screen
+  }/// Navigates to the detailed conversation screen
   void _navigateToConversation(String conversationId) {
     Navigator.of(context).push(
       MaterialPageRoute(
