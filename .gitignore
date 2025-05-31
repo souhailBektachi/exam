@@ -45,5 +45,9 @@ app.*.map.json
 /android/app/release
 
 
-
-
+/screenshots
+report.tex
+prompt.txt
+task.txt
+bloc_architecture.md
+SouhailBektachi_Rapport.md 
